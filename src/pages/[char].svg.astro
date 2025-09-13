@@ -1,0 +1,14 @@
+---
+export const prerender = false;
+const { char } = Astro.params;
+import Character from "../components/Character.astro";
+if (import.meta.env.PROD) {
+	Astro.response.headers.set("Content-Type", "image/svg+xml");
+}
+---
+
+<Character
+	character={char ?? ""}
+	color={Astro.url.searchParams.get("color") ?? undefined}
+	outlineColor={Astro.url.searchParams.get("outlineColor") ?? undefined}
+/>
