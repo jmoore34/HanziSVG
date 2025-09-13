@@ -1,0 +1,273 @@
+---
+// const char = {
+// 	strokes: [
+// 		"M 350 571 Q 380 593 449 614 Q 465 615 468 623 Q 471 633 458 643 Q 439 656 396 668 Q 381 674 370 672 Q 363 668 363 657 Q 364 621 200 527 Q 196 518 201 516 Q 213 516 290 546 Q 303 550 316 556 L 350 571 Z",
+// 		"M 584 466 Q 666 485 734 497 Q 746 496 754 511 Q 755 524 729 533 Q 693 554 622 527 Q 598 520 575 511 L 537 499 Q 518 495 500 488 Q 442 472 386 457 L 337 446 Q 327 446 179 416 Q 148 409 173 392 Q 212 365 241 376 Q 287 389 339 404 L 387 416 Q 460 438 545 457 L 584 466 Z",
+// 		"M 386 457 Q 387 493 398 517 Q 405 535 390 548 Q 371 564 350 571 C 323 583 303 583 316 556 Q 315 556 316 555 Q 338 519 337 478 Q 337 462 337 446 L 339 404 Q 340 343 339 289 L 338 241 Q 337 180 334 133 Q 333 115 323 109 Q 317 105 250 119 Q 238 122 239 114 Q 240 108 249 100 Q 309 42 328 6 Q 341 -10 357 3 Q 390 36 390 126 Q 387 169 387 265 L 387 306 Q 387 355 387 416 L 386 457 Z",
+// 		"M 339 289 Q 254 261 161 229 Q 139 222 101 221 Q 86 220 85 207 Q 84 192 94 184 Q 119 166 157 147 Q 169 144 182 154 Q 239 199 338 241 L 387 265 Q 477 314 484 318 Q 499 327 498 337 Q 492 343 479 340 Q 434 324 387 306 L 339 289 Z",
+// 		"M 635 195 Q 690 75 797 -14 Q 876 -62 898 -47 Q 920 -37 914 3 Q 905 34 899 152 Q 900 174 894 178 Q 890 179 884 160 Q 857 75 838 60 Q 823 56 785 88 Q 710 155 670 226 L 644 279 Q 599 381 584 466 L 575 511 Q 547 659 576 752 Q 586 779 543 805 Q 509 827 489 825 Q 470 824 479 795 Q 503 752 507 707 Q 517 601 537 499 L 545 457 Q 573 334 612 245 L 635 195 Z",
+// 		"M 612 245 Q 558 197 452 138 Q 442 132 448 128 Q 455 124 468 126 Q 523 135 574 160 Q 608 175 635 195 L 670 226 Q 706 260 747 317 Q 762 336 778 354 Q 788 361 785 374 Q 781 386 753 410 Q 734 428 723 428 Q 708 427 707 411 Q 701 354 644 279 L 612 245 Z",
+// 		"M 687 669 Q 718 648 754 623 Q 770 613 786 615 Q 798 618 801 632 Q 802 648 789 678 Q 780 697 746 708 Q 665 726 651 715 Q 647 711 651 697 Q 655 687 687 669 Z",
+// 	],
+// 	medians: [
+// 		[
+// 			[458, 627],
+// 			[392, 631],
+// 			[336, 588],
+// 			[274, 552],
+// 			[258, 550],
+// 			[253, 542],
+// 			[220, 530],
+// 			[212, 532],
+// 			[203, 522],
+// 		],
+// 		[
+// 			[174, 404],
+// 			[215, 398],
+// 			[241, 402],
+// 			[672, 514],
+// 			[742, 512],
+// 		],
+// 		[
+// 			[323, 556],
+// 			[351, 542],
+// 			[365, 522],
+// 			[361, 116],
+// 			[340, 67],
+// 			[246, 113],
+// 		],
+// 		[
+// 			[100, 206],
+// 			[124, 195],
+// 			[163, 189],
+// 			[492, 334],
+// 		],
+// 		[
+// 			[492, 807],
+// 			[537, 760],
+// 			[538, 627],
+// 			[569, 435],
+// 			[612, 299],
+// 			[676, 170],
+// 			[717, 112],
+// 			[779, 48],
+// 			[817, 22],
+// 			[859, 12],
+// 			[880, 78],
+// 			[891, 140],
+// 			[886, 147],
+// 			[894, 173],
+// 		],
+// 		[
+// 			[723, 412],
+// 			[737, 365],
+// 			[664, 259],
+// 			[594, 198],
+// 			[489, 142],
+// 			[454, 132],
+// 		],
+// 		[
+// 			[657, 710],
+// 			[750, 668],
+// 			[781, 634],
+// 		],
+// 	],
+// 	radStrokes: [1, 4, 5, 6],
+// };
+export const prerender = false;
+const { character } = Astro.params;
+console.log(character)
+const response = await fetch(
+	`https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/${character}.json`,
+);
+interface Char {
+	strokes: string[],
+	medians: Stroke[]
+}
+const char: Char = await response.json();
+const brushWidth = 150;
+
+type Point = number[];
+type Vector = number[];
+type Stroke = Point[];
+
+function subtract(a: Point, b: Point): Vector {
+	return [a[0] - b[0], a[1] - b[1]];
+}
+
+function magnitude(v: Vector) {
+	return Math.sqrt(v[0] * v[0] + v[1] * v[1]);
+}
+
+function normalize(v: Vector) {
+	const length = magnitude(v);
+	return [v[0] / length, v[1] / length];
+}
+
+const strokeLengths = char.medians.map((points) => {
+	var length = 0;
+	for (var i = 1; i < points.length; i++) {
+		length += magnitude(subtract(points[i], points[i - 1]));
+	}
+	return length;
+});
+
+// Extend the first point backwards a bit such that the edge of the
+// brush, not the center of the brush, is first visible
+function extendStart(points: Point[]) {
+	const vectorTowardsStart = normalize(subtract(points[0], points[1]));
+	points[0] = [
+		points[0][0] + (vectorTowardsStart[0] * brushWidth) / 2,
+		points[0][1] + (vectorTowardsStart[1] * brushWidth) / 2,
+	];
+}
+for (var stroke of char.medians) {
+	extendStart(stroke);
+}
+
+// function x(point: Point) {
+// 	point[0];
+// }
+
+// function y(point: Point) {
+// 	point[1];
+// }
+
+var strokeMovements = char.medians.map(
+	(stroke) =>
+		`M${stroke[0][0]},${stroke[0][1]} ` +
+		stroke
+			.slice(1)
+			.map((point) => `L${point[0]},${point[1]}`)
+			.join(" "),
+);
+
+// Astro.response.headers.set("Content-Type", "image/svg+xml");
+---
+
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	viewBox="0 0 1024 1024"
+	width="200"
+	height="200"
+>
+	<g transform="scale(1, -1) translate(0, -900)" id="main">
+		<g opacity="0.5">
+			{
+				char.strokes.map((stroke, idx) => (
+					<path d={stroke} id={`stroke-${idx}`} />
+				))
+			}
+		</g>
+		<defs>
+			{
+				char.strokes.map((_, idx) => (
+					<clipPath id={"mask-" + idx}>
+						<use href={`#stroke-${idx}`} />
+					</clipPath>
+				))
+			}
+		</defs>
+		<g id="drawing" opacity="1">
+			{
+				strokeMovements.map((strokeMovement, idx) => (
+					<path
+						d={strokeMovement}
+						stroke-width={brushWidth}
+						stroke-linecap="round"
+						stroke-linejoin="miter"
+						stroke="black"
+						fill="none"
+						clip-path={`url(#mask-${idx})`}
+						pathLength="1"
+						stroke-dasharray="1"
+						stroke-dashoffset="1"
+					>
+						<animate
+							id={`draw${idx}`}
+							attributeName="stroke-dashoffset"
+							values="1;0"
+							dur={`${strokeLengths[idx] * 0.35 + 170}ms`}
+							begin={`${idx == 0 ? "0;fadeOut.end + 10ms" : `draw${idx - 1}.end + 35ms`}`}
+							fill="freeze"
+						/>
+						<set
+							attributeName="stroke-dashoffset"
+							to="1"
+							begin={`fadeOut.end`}
+						/>
+					</path>
+					// <path
+					// 	d={strokeMovement}
+					// 	stroke-width="20"
+					// 	stroke-linecap="round"
+					// 	stroke-linejoin="miter"
+					// 	stroke="green"
+					// 	fill="none"
+					// ></path>
+				))
+			}
+			<animate
+				id="fadeOut"
+				attributeName="opacity"
+				values="1;0"
+				dur="500ms"
+				begin={`draw${strokeMovements.length - 1}.end + 1400ms`}
+			></animate>
+			<!-- <style>
+				text {
+					fill: rgb(11, 205, 244);
+					font-size: 140px;
+					font-weight: 800;
+				}
+			</style> -->
+			<!-- {char.medians.flatMap((points , idx1) => <text x={points[0][0]} y={points[0][1]}>{idx1}</text>)} -->
+		</g>
+	</g>
+</svg>
+
+<!-- <svg id="z25105" width="200" height="200" class="acjk" version="1.1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<style>
+<![CDATA[
+@keyframes zk {
+	to {
+		stroke-dashoffset:0;
+	}
+}
+svg.acjk path[clip-path] {
+	--t:0.8s;
+	animation:zk var(--t) linear forwards var(--d);
+	stroke-dasharray:3337;
+	stroke-dashoffset:3339;
+	stroke-width:128;
+	stroke-linecap:round;
+	fill:none;
+	stroke:red;
+}
+svg.acjk path[id] {fill:black;}
+]]>
+</style>
+<path id="z25105d1" d="M350 327C372 317 402 298 449 286C459 283 466 282 468 277C470 270 466 263 458 257C445 248 424 240 396 232C385 228 377 225 370 228C364 229 362 235 363 243C363 267 307 307 200 373C194 376 197 383 201 384C208 384 270 362 316 342C339 332 339 332 350 327Z"/>
+<path id="z25105d2" d="M584 434C625 424 688 409 734 403C742 401 750 399 754 389C756 380 744 375 729 367C703 354 689 349 642 367C626 372 600 381 575 389C550 397 550 397 537 401C524 405 423 434 386 443C353 450 353 450 337 454C306 460 268 469 179 484C157 487 155 496 173 508C198 525 221 530 241 524C271 514 304 504 339 496C371 488 371 488 387 484C420 475 506 452 545 443C571 437 571 437 584 434Z"/>
+<path id="z25105d3" d="M398 383C403 371 400 360 390 352C377 341 364 331 350 327C338 322 311 330 316 342C316 343 316 343 316 343C330 367 337 394 337 422C337 422 339 534 339 552C339 572 336 735 334 767C333 779 329 786 323 791C318 793 294 790 250 781C241 779 238 780 239 786C239 790 243 794 249 800C289 838 313 870 328 894C335 905 346 906 357 897C379 875 391 834 390 774C389 745 387 564 387 549C387 527 387 405 398 383Z"/>
+<path id="z25105d4" d="M339 611C293 627 230 652 161 671C146 675 126 678 101 679C90 679 85 684 85 693C84 703 86 710 94 716C109 728 130 741 157 753C163 756 173 752 182 746C220 716 273 690 338 659C371 643 371 643 387 635C448 604 479 584 484 582C494 576 500 568 498 563C495 556 487 557 479 560C448 569 418 582 387 594C355 605 355 605 339 611Z"/>
+<path id="z25105d5" d="M635 705C670 776 722 859 797 914C846 950 882 955 898 947C912 939 919 922 914 897C909 874 901 826 899 748C898 733 897 724 894 722C890 720 888 727 884 740C866 796 852 832 838 840C829 845 808 833 785 812C733 767 703 734 670 674C660 655 651 638 644 621C610 549 595 486 584 434C580 418 577 403 575 389C560 300 556 209 576 148C582 129 570 112 543 95C519 80 502 73 489 75C476 76 470 85 479 105C492 133 504 163 507 193C513 263 524 326 537 401C539 414 542 428 545 443C558 514 583 585 612 655C618 671 626 687 635 705Z"/>
+<path id="z25105d6" d="M612 655C576 687 522 722 452 762C445 765 442 769 448 772C451 774 459 775 468 774C504 768 539 756 574 740C596 729 614 720 635 705C647 695 658 684 670 674C695 649 719 620 747 583C756 570 766 557 778 546C783 540 787 533 785 526C782 516 770 506 753 490C739 478 730 471 723 472C713 472 708 478 707 489C703 527 682 571 644 621C632 635 625 642 612 655Z"/>
+<path id="z25105d7" d="M687 231C708 244 729 259 754 277C764 283 775 286 786 285C794 283 799 277 801 268C802 257 797 240 789 222C783 208 768 197 746 192C691 178 660 177 651 185C648 187 647 192 651 203C653 208 666 218 687 231Z"/>
+<defs>
+	<clipPath id="z25105c1"><use xlink:href="#z25105d1"/></clipPath>
+	<clipPath id="z25105c2"><use xlink:href="#z25105d2"/></clipPath>
+	<clipPath id="z25105c3"><use xlink:href="#z25105d3"/></clipPath>
+	<clipPath id="z25105c4"><use xlink:href="#z25105d4"/></clipPath>
+	<clipPath id="z25105c5"><use xlink:href="#z25105d5"/></clipPath>
+	<clipPath id="z25105c6"><use xlink:href="#z25105d6"/></clipPath>
+	<clipPath id="z25105c7"><use xlink:href="#z25105d7"/></clipPath>
+</defs>
+<path style="--d:1s;" pathLength="3333" clip-path="url(#z25105c1)" d="M370 237L412 280L203 377"/>
+<path style="--d:2s;" pathLength="3333" clip-path="url(#z25105c2)" d="M170 495L241 499L669 386L747 384"/>
+<path style="--d:3s;" pathLength="3333" clip-path="url(#z25105c3)" d="M323 339L366 379L361 787L326 849L249 786"/>
+<path style="--d:4s;" pathLength="3333" clip-path="url(#z25105c4)" d="M88 693L156 714L489 566"/>
+<path style="--d:5s;" pathLength="3333" clip-path="url(#z25105c5)" d="M483 84L537 143L571 471L683 742L786 859L867 899L892 731"/>
+<path style="--d:6s;" pathLength="3333" clip-path="url(#z25105c6)" d="M719 476L742 528L653 652L455 768"/>
+<path style="--d:7s;" pathLength="3333" clip-path="url(#z25105c7)" d="M653 190L796 272"/>
+</svg> -->
